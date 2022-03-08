@@ -1,3 +1,4 @@
+import atexit
 from config import *
 from logger import log
 from docker_client import remove_containers, start_containers
@@ -39,6 +40,9 @@ def wait_for_offline() -> None:
 
 def stop_server():
     log('Stopping server...')
-    remove_containers()
+    remove_containers(dockerfile, log)
+    unmount(mountDir, mount_timeout, log)
+    quit()
     
     
+atexit.register(stop_server)
