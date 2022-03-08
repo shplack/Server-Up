@@ -1,4 +1,3 @@
-import atexit
 from config import *
 from logger import log
 from docker_client import remove_containers, start_containers
@@ -17,32 +16,39 @@ def ping(count) -> bool:
         process.check_returncode()
         return True
     except subprocess.CalledProcessError as cpe:
-        log(cpe.stderr, 'CalledProcessError')
+        if "Host Unreachable" not in cpe.output:
+            log(str(cpe), 'CalledProcessError')
         return False
     except KeyboardInterrupt:
-        # TODO stop server
-        pass
+        log('Keyboard interrupt')
+        stop_server()
+        quit()
     
 
 def wait_for_online() -> None:
     log('Checking if host is up')
     log('Pinging host...')
-    while not ping(): pass
+    while not ping(p_on_count): pass
     log(f'Host [{host}] is up!')
 
 
 def wait_for_offline() -> None:
     log('Waiting for host to go down')
     log('Pinging host...')
-    while ping(64): pass
+    while ping(p_off_count): pass
     log(f'Host [{host}]went down!')
 
 
 def stop_server():
-    log('Stopping server...')
+    log('Stopping...', 'Server')
     remove_containers(dockerfile, log)
     unmount(mountDir, mount_timeout, log)
-    quit()
+    log('Stopped', 'Server')
     
     
-atexit.register(stop_server)
+def start_server():
+    log('Starting...', 'Server')
+    if not start_containers(dockerfile, log) or \
+        not mount(mountDir, mount_timeout, log):
+        quit()
+    log('Started', 'Server')
