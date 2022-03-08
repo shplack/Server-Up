@@ -43,6 +43,10 @@ def remove_containers(dockerfile: str, log=lambda x: x) -> None:
     log('Stopping containers...')
     services = _get_services_from_file(dockerfile)
     
+    if not services:
+        log(f"Unable to stop containers, no services found in '{dockerfile}'", 'FileNotFound')
+        return
+    
     for container in _get_containers_by_name(services):
         _stop_container(container)
     
