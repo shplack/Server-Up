@@ -8,13 +8,16 @@ def _mount_unmount(mountDir:str , mount_timeout: int, mount=True, lazy=False, lo
     if not mount and lazy:
         args.insert(1, '-l')
     
-    log(f"{process.capitalize}ing network share at '{mountDir}'...")
+    log(f"{process.capitalize()}ing network share at '{mountDir}'...")
     proc = Popen(args, text=True, stdout=PIPE, stderr=PIPE)
     try:
         proc.wait(mount_timeout)
         log(f"Successfully {process}ed network share")
         return True
     except:
+        stderr = proc.stderr.readlines()
+        if stderr and not mount and "Host is down":
+            return True
         log(f"Could not {process} network share")
         [log(err, f"Error {process}ing") for err in proc.stderr.readlines()]
         return False
