@@ -54,6 +54,7 @@ def remove_containers(dockerfile: str, log=lambda x: x) -> bool:
         if not _kill_container(container):
             log(f"Unable to kill [{container.name}]")
             return False
+    log('Containers stopped')
     return True
             
 
@@ -73,6 +74,7 @@ def start_containers(dockerfile: str, log=lambda x: x) -> bool:
         if not_started:
             log(f"Unable to start [{'|'.join(not_started)}]")
             return False
+        log('Containers started')
         return True
     except subprocess.CalledProcessError as cpe:
         log('Unable to start docker services')
