@@ -39,7 +39,7 @@ def _get_containers_by_name(services: list) -> list:
         
 
 
-def remove_containers(dockerfile: str, log=lambda x: x) -> None:
+def remove_containers(dockerfile: str, log=lambda x: x) -> bool:
     log('Stopping containers...')
     services = _get_services_from_file(dockerfile)
     
@@ -53,9 +53,11 @@ def remove_containers(dockerfile: str, log=lambda x: x) -> None:
     for container in _get_containers_by_name(services):
         if not _kill_container(container):
             log(f"Unable to kill [{container.name}]")
+            return False
+    return True
             
 
-def start_containers(dockerfile: str, log=lambda x: x):
+def start_containers(dockerfile: str, log=lambda x: x) -> bool:
     log('Starting containers...')
     services = _get_services_from_file(dockerfile)
     
@@ -70,7 +72,10 @@ def start_containers(dockerfile: str, log=lambda x: x):
         not_started = set(services).intersection(set(client.containers.list()))
         if not_started:
             log(f"Unable to start [{'|'.join(not_started)}]")
+            return False
+        return True
     except subprocess.CalledProcessError as cpe:
         log('Unable to start docker services')
         log(cpe.stderr, 'CalledProcessError')
+        return False
         
