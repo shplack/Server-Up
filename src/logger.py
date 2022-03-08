@@ -30,7 +30,7 @@ def log(msg: str, header=''):
     output = f'[{now()}] '
     if header:
         output += f'{header}: '
-    output += msg
+    output += msg.strip()
     if not _logFile.writable():
         print(f"Unable to write to logfile: '{logDir + logfileName}'")
     else:
