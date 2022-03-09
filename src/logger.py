@@ -6,11 +6,11 @@ from config import logDir, logfileName
 _logFile: FileIO
 
 
-def now():
+def now() -> str:
     return strftime("%H:%M:%S", localtime())
 
 
-def _init_log():
+def _init_log() -> None:
     global _logFile
     
     if not os.path.exists(logDir):
@@ -26,7 +26,10 @@ def _init_log():
     _logFile.write(f'\n----------------------------Started [{logfileName}] at: [{strftime("%Y/%m/%d")} {now()}]----------------------------\n')
     
     
-def log(msg: str, header=''):
+def log(msg: str, header='') -> None:
+    if not os.access(logDir + logfileName, os.W_OK):
+        return
+    
     output = f'[{now()}] '
     if header:
         output += f'{header}: '
