@@ -3,8 +3,7 @@ from subprocess import Popen, PIPE
 
 def _mount_unmount(mountDir:str , mount_timeout: int, mount=True, lazy=False, log=lambda x: x) -> bool:
     process = "mount" if mount else "unmount"
-    command = "mount" if mount else "umount"
-    args = [command, mountDir]
+    args = ["mount" if mount else "umount", mountDir]
     if not mount and lazy:
         args.insert(1, '-l')
     
@@ -14,8 +13,11 @@ def _mount_unmount(mountDir:str , mount_timeout: int, mount=True, lazy=False, lo
         proc.wait(mount_timeout)
         log(f"Successfully {process}ed network share")
         return True
-    except:
+    except Exception as err:
         stderr = proc.stderr.readlines()
+        if not stderr:
+            log(str(err), "Exception")
+            return False
         if stderr and not mount and "Host is down":
             return True
         log(f"Could not {process} network share")
