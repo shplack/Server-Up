@@ -13,6 +13,7 @@ def _mount_unmount(mountDir:str , mount_timeout: int, mount=True, lazy=False, lo
     try:
         proc.wait(mount_timeout)
         success = True
+        log(f"Successfully {process}ed network share")
     except TimeoutExpired as te:
         log(str(te), f'Timeout {"un" if not mount else ""}mounting network share')
     except Exception as err:
@@ -29,9 +30,6 @@ def _mount_unmount(mountDir:str , mount_timeout: int, mount=True, lazy=False, lo
         proc.stderr.close()
         proc.stdout.close()
     
-    
-    if success:
-        log(f"Successfully {process}ed network share")
     return success
             
             
