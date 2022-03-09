@@ -20,7 +20,7 @@ def _init_log() -> None:
         
     if not os.access(logDir, os.W_OK):
         print(f"Check write permissions for '{logDir}'")
-        quit()
+        exit()
     
     _logFile = open(logDir + logfileName, "a")
     _logFile.write(f'\n----------------------------Started [{logfileName}] at: [{strftime("%Y/%m/%d")} {now()}]----------------------------\n')

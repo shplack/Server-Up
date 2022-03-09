@@ -22,7 +22,7 @@ def ping(count: str) -> bool:
     except KeyboardInterrupt:
         log('Keyboard interrupt')
         stop_server()
-        quit()
+        exit()
     
 
 def wait_for_online() -> None:
@@ -49,5 +49,5 @@ def start_server():
     if not mount(mountDir, mount_timeout, log) or \
         not start_containers(dockerfile, docker_timeout, log):
         stop_server()
-        quit()
+        exit()
     log('Started', 'Server')

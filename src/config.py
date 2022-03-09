@@ -21,16 +21,16 @@ p_off_count = _get_config('PING_OFFLINE_COUNT') or '128'
 
 if not mountDir:
     print('No mount directory configured')
-    quit()
+    exit()
     
 if not dockerfile:
     print('No docker-compose.yaml file path configured')
-    quit()
+    exit()
     
 if not host:
     print('No host configured')
-    quit()
+    exit()
     
 if not os.access('/'.join(dockerfile.split('/')[:-1]), os.R_OK):
     print(f"Unable to access '{dockerfile}'. Check permissions/path")
-    quit()
+    exit()

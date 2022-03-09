@@ -10,7 +10,7 @@ def main():
         main()
     except KeyboardInterrupt:
         stop_server()
-        quit()
+        exit()
         
 main()
 
