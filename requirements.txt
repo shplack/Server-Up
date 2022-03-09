@@ -1,5 +1,4 @@
 docker-compose
 docker
-pyyaml<6
 python-dotenv
 PyInstaller
