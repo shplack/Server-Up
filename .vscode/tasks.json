@@ -10,7 +10,7 @@
             "args": [
                 "-m",
                 "PyInstaller",
-                "${workspaceFolder}/src/serverup.py",
+                "${workspaceFolder}/main.py",
                 "-F",
                 "--specpath=./build/serverup",
                 "-n",
