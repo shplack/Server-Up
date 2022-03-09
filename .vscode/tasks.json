@@ -4,12 +4,26 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Run main.py",
+            "label": "Build with PyInstaller",
             "type": "shell",
-            "command": "${PYTHONPATH}",
+            "command": "${config:python.defaultInterpreterPath}",
             "args": [
-                "${workspaceFolder}/main.py"
-            ]
+                "-m",
+                "PyInstaller",
+                "${workspaceFolder}/src/serverup.py",
+                "-F",
+                "--specpath=./build/serverup",
+                "-n",
+                "serverup",
+                "--distpath=./dist",
+                "--workpath=./build/serverup",
+                "-y" ,
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         }
     ]
 }
