@@ -48,7 +48,7 @@ def stop_server():
     
 def start_server():
     log('Starting...', 'Server')
-    if not start_containers(dockerfile, log) or \
-        not mount(mountDir, mount_timeout, log):
+    if not mount(mountDir, mount_timeout, log) or \
+        not start_containers(dockerfile, log):
         quit()
     log('Started', 'Server')
