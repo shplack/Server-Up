@@ -3,6 +3,7 @@ from logger import log
 from docker_client import remove_containers, start_containers
 import subprocess
 from mount import mount, unmount
+from sys import exit
 
 
 def ping(count: str) -> bool:
@@ -22,7 +23,7 @@ def ping(count: str) -> bool:
     except KeyboardInterrupt:
         log('Keyboard interrupt')
         stop_server()
-        exit()
+        exit(1)
     
 
 def wait_for_online() -> None:
@@ -49,5 +50,5 @@ def start_server():
     if not mount(mountDir, mount_timeout, log) or \
         not start_containers(dockerfile, docker_timeout, log):
         stop_server()
-        exit()
+        exit(-1)
     log('Started', 'Server')
