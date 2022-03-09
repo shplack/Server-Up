@@ -1,4 +1,4 @@
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, TimeoutExpired
 
 
 def _mount_unmount(mountDir:str , mount_timeout: int, mount=True, lazy=False, log=lambda x: x) -> bool:
@@ -11,8 +11,9 @@ def _mount_unmount(mountDir:str , mount_timeout: int, mount=True, lazy=False, lo
     proc = Popen(args, text=True, stdout=PIPE, stderr=PIPE)
     try:
         proc.wait(mount_timeout)
-        log(f"Successfully {process}ed network share")
-        return True
+    except TimeoutExpired as te:
+        log(str(te), f'Timeout {"un" if not mount else ""}mounting network share')
+        return False
     except Exception as err:
         stderr = proc.stderr.readlines()
         if not stderr:
@@ -23,6 +24,9 @@ def _mount_unmount(mountDir:str , mount_timeout: int, mount=True, lazy=False, lo
         log(f"Could not {process} network share")
         [log(err, f"Error {process}ing") for err in proc.stderr.readlines()]
         return False
+    
+    log(f"Successfully {process}ed network share")
+    return True
             
             
 def mount(mountDir:str , mount_timeout: int, log=lambda x: x) -> bool:
