@@ -5,7 +5,7 @@ import subprocess
 from mount import mount, unmount
 
 
-def ping(count) -> bool:
+def ping(count: str) -> bool:
     try:
         process = subprocess.run(
             ['ping', '-c', count, host], 
@@ -26,22 +26,20 @@ def ping(count) -> bool:
     
 
 def wait_for_online() -> None:
-    log('Checking if host is up')
-    log('Pinging host...')
+    log(f"Waiting for {host} to come online...")
     while not ping(p_on_count): pass
-    log(f'Host [{host}] is up!')
+    log(f"Host {host} is up!")
 
 
 def wait_for_offline() -> None:
-    log('Waiting for host to go down')
-    log('Pinging host...')
+    log(f"Waiting for {host} to go offline...")
     while ping(p_off_count): pass
-    log(f'Host [{host}]went down!')
+    log(f"Host {host} went down!")
 
 
 def stop_server():
     log('Stopping...', 'Server')
-    remove_containers(dockerfile, log)
+    remove_containers(dockerfile, docker_timeout, log)
     unmount(mountDir, mount_timeout, log)
     log('Stopped', 'Server')
     
@@ -49,6 +47,7 @@ def stop_server():
 def start_server():
     log('Starting...', 'Server')
     if not mount(mountDir, mount_timeout, log) or \
-        not start_containers(dockerfile, log):
+        not start_containers(dockerfile, docker_timeout, log):
+        stop_server()
         quit()
     log('Started', 'Server')

@@ -1,83 +1,51 @@
 from docker import from_env
 import subprocess
-import yaml
 
-client = from_env()
+client = from_env()       
 
 
-def _get_services_from_file(dockerfile: str) -> list:
-    services = []
-    with open(dockerfile) as f:
-        data: dict = yaml.load(f, Loader=yaml.SafeLoader)
-        services = [service for service in data.get('services')]
-        f.close()
-    return services
+def _start_stop(process: str, args: list, timeout: int, log: callable) -> bool:
+    log(f'{process.lower().capitalize()}ing containers...')
     
-
-
-def _stop_container(container, log=lambda x: x) -> None:
-    if container.status == "running":
-        log(f"Stopping [{container.name}]")
-        container.stop()
-        container.reload()
-        
-
-def _kill_container(container, log=lambda x: x) -> None:
-    if container.status == "running":
-        log(f"Killing [{container.name}]")
-        container.kill()
-        container.reload()
-    return container.status == "exited"
-
-
-def _get_containers_by_name(services: list) -> list:
-    containers = []
-    for container in client.containers.list():
-        if container.name in services:
-            containers.append(container)
-    return containers
-        
-
-
-def remove_containers(dockerfile: str, log=lambda x: x) -> bool:
-    log('Stopping containers...')
-    services = _get_services_from_file(dockerfile)
+    proc = subprocess.Popen(
+        args=args,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
+     
+    try:
+        proc.wait(timeout)
+    except subprocess.TimeoutExpired as te:
+        log(str(te), f'Timeout {process.lower()}ing containers')
+        return False
+    except subprocess.CalledProcessError as cpe:
+        log(str(cpe), 'CalledProcessError')
+        return False
+    except Exception as e:
+        log(str(e), 'Error')
+        return False
     
-    if not services:
-        log(f"Unable to stop containers, no services found in '{dockerfile}'", 'FileNotFound')
-        return
     
-    for container in _get_containers_by_name(services):
-        _stop_container(container)
-    
-    for container in _get_containers_by_name(services):
-        if not _kill_container(container):
-            log(f"Unable to kill [{container.name}]")
-            return False
-    log('Containers stopped')
+    log(f'Successfully {process.lower()}ed containers')
     return True
+
+def remove_containers(dockerfile: str, docker_timeout: int, log=lambda x: x) -> bool:
+    return _start_stop(
+        process='stopp',
+        args=['docker-compose', '-f', dockerfile, 'down'],
+        timeout=docker_timeout,
+        log=log
+    )
             
 
-def start_containers(dockerfile: str, log=lambda x: x) -> bool:
-    log('Starting containers...')
-    services = _get_services_from_file(dockerfile)
+def start_containers(dockerfile: str, docker_timeout: int, log=lambda x: x) -> bool:
+    return _start_stop(
+        process='start',
+        args=['docker-compose', '-f', dockerfile, 'up', '-d'],
+        timeout=docker_timeout,
+        log=log
+    )
     
-    try:
-        subprocess.run(
-            ['docker', '-f', dockerfile, 'up', '-d'] + services,
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-    
-        not_started = set(services).intersection(set(client.containers.list()))
-        if not_started:
-            log(f"Unable to start [{'|'.join(not_started)}]")
-            return False
-        log('Containers started')
-        return True
-    except subprocess.CalledProcessError as cpe:
-        log('Unable to start docker services')
-        log(cpe.stderr, 'CalledProcessError')
-        return False
         
+    
