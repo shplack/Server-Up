@@ -11,11 +11,11 @@ if logDir[-1] is not '/':
     logDir += '/'
 logfileName = _get_config('LOGFILENAME') or 'serverup.py.log'
 mountDir = _get_config('MOUNTDIR')
-mount_timeout = _get_config('MOUNT_TIMEOUT') or 30
+mount_timeout = int(_get_config('MOUNT_TIMEOUT')) or 30
 dockerfile = _get_config('DOCKERFILE')
 host = _get_config('HOST')
-p_on_count = str(_get_config('PING_ONLINE_COUNT')) or 16
-p_off_count = str(_get_config('PING_OFFLINE_COUNT')) or 128
+p_on_count = _get_config('PING_ONLINE_COUNT') or '16'
+p_off_count = _get_config('PING_OFFLINE_COUNT') or '128'
 
 
 if not mountDir:
