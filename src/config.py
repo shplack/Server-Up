@@ -13,6 +13,7 @@ logfileName = _get_config('LOGFILENAME') or 'serverup.py.log'
 mountDir = _get_config('MOUNTDIR')
 mount_timeout = int(_get_config('MOUNT_TIMEOUT')) or 30
 dockerfile = _get_config('DOCKERFILE')
+docker_timeout = int(_get_config('DOCKER_TIMEOUT')) or 60
 host = _get_config('HOST')
 p_on_count = _get_config('PING_ONLINE_COUNT') or '16'
 p_off_count = _get_config('PING_OFFLINE_COUNT') or '128'
