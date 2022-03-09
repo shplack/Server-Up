@@ -13,9 +13,10 @@ def _start_stop(process: str, args: list, timeout: int, log: callable) -> bool:
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
-     
+    success = False
     try:
         proc.wait(timeout)
+        success = True
     except subprocess.TimeoutExpired as te:
         log(str(te), f'Timeout {process.lower()}ing containers')
         return False
@@ -25,10 +26,15 @@ def _start_stop(process: str, args: list, timeout: int, log: callable) -> bool:
     except Exception as e:
         log(str(e), 'Error')
         return False
+    finally:
+        proc.kill()
+        proc.stderr.close()
+        proc.stdout.close()
     
     
-    log(f'Successfully {process.lower()}ed containers')
-    return True
+    if success:
+        log(f'Successfully {process.lower()}ed containers')
+    return success
 
 def remove_containers(dockerfile: str, docker_timeout: int, log=lambda x: x) -> bool:
     return _start_stop(
